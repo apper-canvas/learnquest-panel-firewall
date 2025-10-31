@@ -14,8 +14,12 @@ const challengeService = {
     return challenge ? { ...challenge } : null;
   },
 
-  getByType: async (type) => {
+getByType: async (type) => {
     await delay(300);
+    // Support reading sub-types (phonics-matching, phonics-rhyming, word-building, story-mode)
+    if (type.startsWith('reading-')) {
+      return challengesData.filter((c) => c.type === type).map((c) => ({ ...c }));
+    }
     return challengesData.filter((c) => c.type === type).map((c) => ({ ...c }));
   },
 
@@ -26,8 +30,14 @@ const challengeService = {
       .map((c) => ({ ...c }));
   },
 
-  getRandomByType: async (type, count = 5) => {
+getRandomByType: async (type, count = 5) => {
     await delay(300);
+    // Support reading sub-types (phonics-matching, phonics-rhyming, word-building, story-mode)
+    if (type.startsWith('reading-')) {
+      const filtered = challengesData.filter((c) => c.type === type);
+      const shuffled = [...filtered].sort(() => Math.random() - 0.5);
+      return shuffled.slice(0, count).map((c) => ({ ...c }));
+    }
     const filtered = challengesData.filter((c) => c.type === type);
     const shuffled = [...filtered].sort(() => Math.random() - 0.5);
     return shuffled.slice(0, count).map((c) => ({ ...c }));

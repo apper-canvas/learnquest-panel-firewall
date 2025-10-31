@@ -31,7 +31,7 @@ const mainRoutes = [
     )
   },
   {
-    path: "challenges/:subject",
+path: "challenges/:subject",
     element: (
       <Suspense fallback={suspenseFallback}>
         <ChallengePage />
