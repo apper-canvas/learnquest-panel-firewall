@@ -1,18 +1,21 @@
-import { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import SubjectCard from "@/components/molecules/SubjectCard";
-import Card from "@/components/atoms/Card";
-import Badge from "@/components/atoms/Badge";
+import { toast } from "react-toastify";
+import progressService from "@/services/api/progressService";
 import ApperIcon from "@/components/ApperIcon";
+import Badge from "@/components/atoms/Badge";
+import Button from "@/components/atoms/Button";
+import Card from "@/components/atoms/Card";
 import Loading from "@/components/ui/Loading";
 import Error from "@/components/ui/Error";
-import progressService from "@/services/api/progressService";
+import SubjectCard from "@/components/molecules/SubjectCard";
 
 const Home = () => {
+  const navigate = useNavigate();
   const [progress, setProgress] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
   const loadProgress = async () => {
     try {
       setLoading(true);
@@ -77,8 +80,7 @@ const Home = () => {
           </div>
         </Card>
       </motion.div>
-
-      <div>
+<div>
         <h2 className="text-3xl font-display text-gray-800 mb-6">
           Choose Your Adventure
         </h2>
@@ -88,14 +90,24 @@ const Home = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.1 }}
           >
-            <SubjectCard
-              subject="math"
-              icon="Calculator"
-              color="primary"
-              currentLevel={progress.mathLevel}
-              totalStars={getMathStars()}
-              description="Practice addition, subtraction, multiplication, and division!"
-            />
+            <div className="space-y-4">
+              <SubjectCard
+                subject="math"
+                icon="Calculator"
+                color="primary"
+                currentLevel={progress.mathLevel}
+                totalStars={getMathStars()}
+                description="Practice addition, subtraction, multiplication, and division!"
+              />
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => navigate("/mini-games/math")}
+              >
+                <ApperIcon name="Gamepad2" size={20} className="mr-2" />
+                Mini-Games
+              </Button>
+            </div>
           </motion.div>
           <motion.div
             initial={{ opacity: 0, x: 20 }}

@@ -1,9 +1,10 @@
-import { createBrowserRouter } from "react-router-dom";
 import { lazy, Suspense } from "react";
+import { createBrowserRouter } from "react-router-dom";
 import Layout from "@/components/organisms/Layout";
 
 const Home = lazy(() => import("@/components/pages/Home"));
 const ChallengePage = lazy(() => import("@/components/pages/ChallengePage"));
+const MiniGames = lazy(() => import("@/components/pages/MiniGames"));
 const Progress = lazy(() => import("@/components/pages/Progress"));
 const AvatarCustomization = lazy(() => import("@/components/pages/AvatarCustomization"));
 const NotFound = lazy(() => import("@/components/pages/NotFound"));
@@ -42,6 +43,14 @@ const mainRoutes = [
     element: (
       <Suspense fallback={suspenseFallback}>
         <ChallengePage />
+      </Suspense>
+    )
+  },
+  {
+    path: "mini-games/:subject",
+    element: (
+      <Suspense fallback={suspenseFallback}>
+        <MiniGames />
       </Suspense>
     )
   },
