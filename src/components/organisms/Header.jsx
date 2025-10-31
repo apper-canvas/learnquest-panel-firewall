@@ -45,17 +45,11 @@ const Header = ({ totalStars = 0 }) => {
               onClick={() => navigate("/challenges/math")} 
               active={location.pathname.includes("/math")}
             />
-            <NavItem 
+<NavItem 
               label="Reading" 
               icon="BookOpen" 
               onClick={() => navigate("/challenges/reading")} 
               active={location.pathname.includes("/reading")}
-            />
-            <NavItem 
-              label="Mini Games" 
-              icon="Gamepad2" 
-              onClick={() => navigate("/mini-games")} 
-              active={location.pathname === "/mini-games"}
             />
             <NavItem 
               label="Avatar" 
@@ -63,7 +57,7 @@ const Header = ({ totalStars = 0 }) => {
               onClick={() => navigate("/avatar")} 
               active={location.pathname === "/avatar"}
             />
-            <NavItem 
+            <NavItem
               label="Progress" 
               icon="TrendingUp" 
               onClick={() => navigate("/progress")} 
