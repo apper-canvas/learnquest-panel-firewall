@@ -59,10 +59,9 @@ const AvatarCustomization = () => {
     })
   }
 
-  const saveAvatar = () => {
-    localStorage.setItem('userAvatar', JSON.stringify(avatar))
-    // Toast notification would go here if needed
-    console.log('Avatar saved!', avatar)
+const saveAvatar = () => {
+    // Avatar state maintained in component only
+    console.log('Avatar customized:', avatar)
   }
 
   const sections = [

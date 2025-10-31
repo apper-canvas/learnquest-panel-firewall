@@ -99,7 +99,7 @@ const handleChallengeComplete = async (stars, correct, completionTime = null) =>
       }, 1600);
     } else {
       setTimeout(async () => {
-        const finalTotalStars = totalStars + finalStars;
+const finalTotalStars = totalStars + finalStars;
         await progressService.updateStars(finalTotalStars);
         
         const duration = Math.floor((Date.now() - sessionStart) / 1000);

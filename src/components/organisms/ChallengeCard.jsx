@@ -30,7 +30,7 @@ const ChallengeCard = ({
 const handleSubmit = () => {
     if (!selectedAnswer) return;
     setIsSubmitted(true);
-    const correct = selectedAnswer === challenge.correctAnswer;
+const correct = selectedAnswer === challenge.correct_answer_c;
     setIsCorrect(correct);
     
     // Calculate completion time for timed mode
@@ -58,10 +58,10 @@ return (
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className={`${
-              challenge.type === "math" ? "bg-primary" : "bg-secondary"
-            } text-white rounded-xl px-4 py-2`}>
-              <span className="font-display text-sm">{challenge.skill}</span>
+<div className={`${
+              challenge.type_c === "math" ? "bg-primary" : "bg-secondary"
+            } text-white px-4 py-2 rounded-full text-sm flex items-center gap-2`}>
+              <span className="font-display text-sm">{challenge.skill_c}</span>
             </div>
             <span className="text-sm font-semibold text-gray-500">
               Question {challengeNumber} of {totalChallenges}
@@ -92,7 +92,7 @@ return (
 
         <div className="bg-gradient-to-br from-primary/10 to-secondary/10 rounded-2xl p-8 text-center">
           <h2 className="text-3xl font-display text-gray-800 leading-relaxed">
-            {challenge.question}
+{challenge.question_c}
           </h2>
         </div>
 
@@ -101,9 +101,9 @@ return (
             <ChallengeOption
               key={index}
               option={option}
-              isSelected={selectedAnswer === option && !isSubmitted}
-              isCorrect={isSubmitted && option === challenge.correctAnswer}
-              isWrong={isSubmitted && selectedAnswer === option && option !== challenge.correctAnswer}
+isSelected={selectedAnswer === option && !isSubmitted}
+              isCorrect={isSubmitted && option === challenge.correct_answer_c}
+              isWrong={isSubmitted && selectedAnswer === option && option !== challenge.correct_answer_c}
               onClick={() => !isSubmitted && setSelectedAnswer(option)}
               disabled={isSubmitted}
             />
@@ -149,8 +149,8 @@ return (
               </div>
               <p className="text-lg text-gray-700">
                 {isCorrect 
-                  ? "You got it right! You're a star learner!" 
-                  : `The correct answer is: ${challenge.correctAnswer}`
+? "You got it right! You're a star learner!" 
+                  : `The correct answer is: ${challenge.correct_answer_c}`
                 }
               </p>
             </motion.div>

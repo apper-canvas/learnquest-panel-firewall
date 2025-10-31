@@ -1,38 +1,137 @@
-import sessionsData from "../mockData/sessions.json";
-
-const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-let sessionsState = [...sessionsData];
+import { getApperClient } from "@/services/apperClient";
 
 const sessionService = {
   getAll: async () => {
-    await delay(200);
-    return [...sessionsState];
+    try {
+      const apperClient = getApperClient();
+      const response = await apperClient.fetchRecords("session_c", {
+        fields: [
+          { field: { Name: "Name" } },
+          { field: { Name: "accuracy_c" } },
+          { field: { Name: "challenges_completed_c" } },
+          { field: { Name: "duration_c" } },
+          { field: { Name: "stars_earned_c" } },
+          { field: { Name: "subject_c" } },
+          { field: { Name: "timestamp_c" } },
+          { field: { Name: "is_timed_c" } },
+          { field: { Name: "average_time_c" } },
+          { field: { Name: "bonus_stars_c" } }
+        ]
+      });
+
+      if (!response.success) {
+        console.error(response.message);
+        return [];
+      }
+
+      return response.data || [];
+    } catch (error) {
+      console.error("Error fetching sessions:", error?.response?.data?.message || error);
+      return [];
+    }
   },
 
   getById: async (id) => {
-    await delay(200);
-    const session = sessionsState.find((s) => s.Id === parseInt(id));
-    return session ? { ...session } : null;
+    try {
+      const apperClient = getApperClient();
+      const response = await apperClient.getRecordById("session_c", id, {
+        fields: [
+          { field: { Name: "Name" } },
+          { field: { Name: "accuracy_c" } },
+          { field: { Name: "challenges_completed_c" } },
+          { field: { Name: "duration_c" } },
+          { field: { Name: "stars_earned_c" } },
+          { field: { Name: "subject_c" } },
+          { field: { Name: "timestamp_c" } },
+          { field: { Name: "is_timed_c" } },
+          { field: { Name: "average_time_c" } },
+          { field: { Name: "bonus_stars_c" } }
+        ]
+      });
+
+      if (!response.success) {
+        console.error(response.message);
+        return null;
+      }
+
+      return response.data || null;
+    } catch (error) {
+      console.error(`Error fetching session ${id}:`, error?.response?.data?.message || error);
+      return null;
+    }
   },
 
   getRecent: async (count = 5) => {
-    await delay(200);
-    return [...sessionsState]
-      .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-      .slice(0, count);
+    try {
+      const apperClient = getApperClient();
+      const response = await apperClient.fetchRecords("session_c", {
+        fields: [
+          { field: { Name: "Name" } },
+          { field: { Name: "accuracy_c" } },
+          { field: { Name: "challenges_completed_c" } },
+          { field: { Name: "duration_c" } },
+          { field: { Name: "stars_earned_c" } },
+          { field: { Name: "subject_c" } },
+          { field: { Name: "timestamp_c" } },
+          { field: { Name: "is_timed_c" } },
+          { field: { Name: "average_time_c" } },
+          { field: { Name: "bonus_stars_c" } }
+        ],
+        orderBy: [{ fieldName: "timestamp_c", sorttype: "DESC" }],
+        pagingInfo: { limit: count, offset: 0 }
+      });
+
+      if (!response.success) {
+        console.error(response.message);
+        return [];
+      }
+
+      return response.data || [];
+    } catch (error) {
+      console.error("Error fetching recent sessions:", error?.response?.data?.message || error);
+      return [];
+    }
   },
 
   create: async (sessionData) => {
-    await delay(300);
-    const maxId = sessionsState.length > 0 ? Math.max(...sessionsState.map((s) => s.Id)) : 0;
-    const newSession = {
-      Id: maxId + 1,
-      timestamp: new Date().toISOString(),
-      ...sessionData
-    };
-    sessionsState.push(newSession);
-    return { ...newSession };
+    try {
+      const createData = {
+        Name: `Session ${new Date().toLocaleString()}`,
+        timestamp_c: new Date().toISOString(),
+        subject_c: sessionData.subject || "",
+        challenges_completed_c: sessionData.challengesCompleted || 0,
+        stars_earned_c: sessionData.starsEarned || 0,
+        accuracy_c: sessionData.accuracy || 0,
+        duration_c: sessionData.duration || 0,
+        is_timed_c: sessionData.isTimed || false,
+        average_time_c: sessionData.averageTime || null,
+        bonus_stars_c: sessionData.bonusStars || 0
+      };
+
+      const apperClient = getApperClient();
+      const response = await apperClient.createRecord("session_c", {
+        records: [createData]
+      });
+
+      if (!response.success) {
+        console.error(response.message);
+        return null;
+      }
+
+      if (response.results) {
+        const failed = response.results.filter(r => !r.success);
+        if (failed.length > 0) {
+          console.error(`Failed to create session:`, failed);
+          return null;
+        }
+        return response.results[0]?.data || null;
+      }
+
+      return null;
+    } catch (error) {
+      console.error("Error creating session:", error?.response?.data?.message || error);
+      return null;
+    }
   }
 };
 

@@ -39,17 +39,17 @@ const Progress = () => {
   if (loading) return <Loading message="Loading your progress..." />;
   if (error) return <Error message={error} onRetry={loadData} />;
 
-  const mathSkills = [
-    { name: "Addition", level: progress.mathLevel, progress: 75, stars: 42 },
-    { name: "Subtraction", level: progress.mathLevel - 1, progress: 60, stars: 38 },
-    { name: "Multiplication", level: progress.mathLevel - 1, progress: 45, stars: 28 },
-    { name: "Division", level: progress.mathLevel - 2, progress: 30, stars: 18 }
+const mathSkills = [
+    { name: "Addition", level: progress.math_level_c || 1, progress: 75, stars: 42 },
+    { name: "Subtraction", level: (progress.math_level_c || 1) - 1, progress: 60, stars: 38 },
+    { name: "Multiplication", level: (progress.math_level_c || 1) - 1, progress: 45, stars: 28 },
+    { name: "Division", level: (progress.math_level_c || 1) - 2, progress: 30, stars: 18 }
   ];
 
   const readingSkills = [
-    { name: "Word Recognition", level: progress.readingLevel, progress: 80, stars: 35 },
-    { name: "Sentence Building", level: progress.readingLevel, progress: 65, stars: 28 },
-    { name: "Comprehension", level: progress.readingLevel - 1, progress: 50, stars: 22 }
+    { name: "Word Recognition", level: progress.reading_level_c || 1, progress: 80, stars: 35 },
+    { name: "Sentence Building", level: progress.reading_level_c || 1, progress: 65, stars: 28 },
+    { name: "Comprehension", level: (progress.reading_level_c || 1) - 1, progress: 50, stars: 22 }
   ];
 
   return (
@@ -73,15 +73,15 @@ const Progress = () => {
               <div className="flex flex-wrap gap-3 justify-center md:justify-start">
                 <Badge variant="accent">
                   <ApperIcon name="Star" size={20} className="mr-1" fill="currentColor" />
-                  {progress.totalStars} Stars
+{progress.total_stars_c || 0} Stars
                 </Badge>
                 <Badge variant="success">
                   <ApperIcon name="Award" size={20} className="mr-1" />
-                  {progress.skillsMastered.length} Skills Mastered
+                  {(progress.skills_mastered_c || '').split('\n').filter(s => s.trim()).length} Skills Mastered
                 </Badge>
                 <Badge variant="info">
                   <ApperIcon name="Flame" size={20} className="mr-1" />
-                  {progress.streak} Day Streak
+                  {progress.streak_c || 0} Day Streak
                 </Badge>
               </div>
             </div>
@@ -144,7 +144,7 @@ const Progress = () => {
         <div className="space-y-4">
           {sessions.map((session, index) => (
             <motion.div
-              key={session.Id}
+key={session.Id}
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: index * 0.1 }}
@@ -153,32 +153,32 @@ const Progress = () => {
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                   <div className="flex items-center gap-4">
                     <div className={`${
-                      session.subject === "math" ? "bg-primary" : "bg-secondary"
+                      session.subject_c === "math" ? "bg-primary" : "bg-secondary"
                     } text-white rounded-xl p-4`}>
                       <ApperIcon 
-                        name={session.subject === "math" ? "Calculator" : "BookOpen"} 
+                        name={session.subject_c === "math" ? "Calculator" : "BookOpen"} 
                         size={32} 
                       />
                     </div>
                     <div>
-                      <h3 className="text-xl font-display capitalize">{session.subject}</h3>
+                      <h3 className="text-xl font-display capitalize">{session.subject_c}</h3>
                       <p className="text-sm text-gray-600">
-                        {new Date(session.timestamp).toLocaleDateString()} at {new Date(session.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        {new Date(session.timestamp_c).toLocaleDateString()} at {new Date(session.timestamp_c).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </p>
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-3">
                     <Badge variant="accent">
                       <ApperIcon name="Star" size={16} className="mr-1" fill="currentColor" />
-                      {session.starsEarned} stars
+                      {session.stars_earned_c || 0} stars
                     </Badge>
                     <Badge variant="success">
                       <ApperIcon name="CheckCircle" size={16} className="mr-1" />
-                      {session.accuracy}% correct
+                      {session.accuracy_c || 0}% correct
                     </Badge>
                     <Badge variant="info">
                       <ApperIcon name="Clock" size={16} className="mr-1" />
-                      {Math.floor(session.duration / 60)}m
+                      {Math.floor((session.duration_c || 0) / 60)}m
                     </Badge>
                   </div>
                 </div>

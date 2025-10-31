@@ -1,5 +1,7 @@
-import { motion } from "framer-motion";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { motion } from "framer-motion";
+import { useAuth } from "@/layouts/Root";
 import React from "react";
 import ApperIcon from "@/components/ApperIcon";
 import Badge from "@/components/atoms/Badge";
@@ -8,7 +10,13 @@ import { cn } from "@/utils/cn";
 const Header = ({ totalStars = 0 }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { logout } = useAuth();
+  const { user } = useSelector((state) => state.user);
   const isHome = location.pathname === "/";
+
+  const handleLogout = async () => {
+    await logout();
+  };
 
   return (
     <motion.header
@@ -32,7 +40,7 @@ const Header = ({ totalStars = 0 }) => {
             </motion.button>
           </div>
 
-<nav className="hidden md:flex items-center gap-6">
+          <nav className="hidden md:flex items-center gap-6">
             <NavItem 
               label="Home" 
               icon="Home" 
@@ -45,7 +53,7 @@ const Header = ({ totalStars = 0 }) => {
               onClick={() => navigate("/challenges/math")} 
               active={location.pathname.includes("/math")}
             />
-<NavItem 
+            <NavItem 
               label="Reading" 
               icon="BookOpen" 
               onClick={() => navigate("/challenges/reading")} 
@@ -73,6 +81,17 @@ const Header = ({ totalStars = 0 }) => {
               <ApperIcon name="Star" size={20} className="text-accent" />
               <span className="ml-2 font-bold">{totalStars}</span>
             </Badge>
+            {user && (
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleLogout}
+                className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full hover:bg-white/30 transition-colors flex items-center gap-2"
+              >
+                <ApperIcon name="LogOut" size={20} />
+                <span className="font-medium">Logout</span>
+              </motion.button>
+            )}
           </div>
         </div>
       </div>

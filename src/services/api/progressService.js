@@ -1,83 +1,194 @@
-import progressData from "../mockData/progress.json";
-
-const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-let progressState = [...progressData];
+import { getApperClient } from "@/services/apperClient";
 
 const progressService = {
   getAll: async () => {
-    await delay(200);
-    return [...progressState];
+    try {
+      const apperClient = getApperClient();
+      const response = await apperClient.fetchRecords("progress_c", {
+        fields: [
+          { field: { Name: "Name" } },
+          { field: { Name: "child_id_c" } },
+          { field: { Name: "last_active_c" } },
+          { field: { Name: "math_level_c" } },
+          { field: { Name: "reading_level_c" } },
+          { field: { Name: "streak_c" } },
+          { field: { Name: "total_stars_c" } },
+          { field: { Name: "skills_mastered_c" } }
+        ]
+      });
+
+      if (!response.success) {
+        console.error(response.message);
+        return [];
+      }
+
+      return response.data || [];
+    } catch (error) {
+      console.error("Error fetching progress:", error?.response?.data?.message || error);
+      return [];
+    }
   },
 
   getById: async (id) => {
-    await delay(200);
-    const progress = progressState.find((p) => p.Id === parseInt(id));
-    return progress ? { ...progress } : null;
+    try {
+      const apperClient = getApperClient();
+      const response = await apperClient.getRecordById("progress_c", id, {
+        fields: [
+          { field: { Name: "Name" } },
+          { field: { Name: "child_id_c" } },
+          { field: { Name: "last_active_c" } },
+          { field: { Name: "math_level_c" } },
+          { field: { Name: "reading_level_c" } },
+          { field: { Name: "streak_c" } },
+          { field: { Name: "total_stars_c" } },
+          { field: { Name: "skills_mastered_c" } }
+        ]
+      });
+
+      if (!response.success) {
+        console.error(response.message);
+        return null;
+      }
+
+      return response.data || null;
+    } catch (error) {
+      console.error(`Error fetching progress ${id}:`, error?.response?.data?.message || error);
+      return null;
+    }
   },
 
   getCurrentProgress: async () => {
-    await delay(200);
-    return progressState[0] ? { ...progressState[0] } : null;
+    try {
+      const apperClient = getApperClient();
+      const response = await apperClient.fetchRecords("progress_c", {
+        fields: [
+          { field: { Name: "Name" } },
+          { field: { Name: "child_id_c" } },
+          { field: { Name: "last_active_c" } },
+          { field: { Name: "math_level_c" } },
+          { field: { Name: "reading_level_c" } },
+          { field: { Name: "streak_c" } },
+          { field: { Name: "total_stars_c" } },
+          { field: { Name: "skills_mastered_c" } }
+        ],
+        pagingInfo: { limit: 1, offset: 0 }
+      });
+
+      if (!response.success) {
+        console.error(response.message);
+        return null;
+      }
+
+      return response.data?.[0] || null;
+    } catch (error) {
+      console.error("Error fetching current progress:", error?.response?.data?.message || error);
+      return null;
+    }
   },
 
   update: async (id, data) => {
-    await delay(300);
-    const index = progressState.findIndex((p) => p.Id === parseInt(id));
-    if (index !== -1) {
-      progressState[index] = { ...progressState[index], ...data };
-      return { ...progressState[index] };
+    try {
+      const updateData = {
+        Id: parseInt(id),
+        last_active_c: new Date().toISOString()
+      };
+
+      if (data.total_stars_c !== undefined) updateData.total_stars_c = data.total_stars_c;
+      if (data.math_level_c !== undefined) updateData.math_level_c = data.math_level_c;
+      if (data.reading_level_c !== undefined) updateData.reading_level_c = data.reading_level_c;
+      if (data.streak_c !== undefined) updateData.streak_c = data.streak_c;
+      if (data.skills_mastered_c !== undefined) updateData.skills_mastered_c = data.skills_mastered_c;
+
+      const apperClient = getApperClient();
+      const response = await apperClient.updateRecord("progress_c", {
+        records: [updateData]
+      });
+
+      if (!response.success) {
+        console.error(response.message);
+        return null;
+      }
+
+      if (response.results) {
+        const failed = response.results.filter(r => !r.success);
+        if (failed.length > 0) {
+          console.error(`Failed to update progress:`, failed);
+          return null;
+        }
+        return response.results[0]?.data || null;
+      }
+
+      return null;
+    } catch (error) {
+      console.error("Error updating progress:", error?.response?.data?.message || error);
+      return null;
     }
-    return null;
   },
 
   updateStars: async (starsToAdd) => {
-    await delay(300);
-    if (progressState[0]) {
-      progressState[0].totalStars += starsToAdd;
-      progressState[0].lastActive = new Date().toISOString();
-      return { ...progressState[0] };
+    try {
+      const currentProgress = await progressService.getCurrentProgress();
+      if (!currentProgress) return null;
+
+      const newTotal = (currentProgress.total_stars_c || 0) + starsToAdd;
+      
+      return await progressService.update(currentProgress.Id, {
+        total_stars_c: newTotal
+      });
+    } catch (error) {
+      console.error("Error updating stars:", error?.response?.data?.message || error);
+      return null;
     }
-    return null;
   },
 
   updateLevel: async (subject, newLevel) => {
-    await delay(300);
-    if (progressState[0]) {
+    try {
+      const currentProgress = await progressService.getCurrentProgress();
+      if (!currentProgress) return null;
+
+      const updateData = {};
       if (subject === "math") {
-        progressState[0].mathLevel = newLevel;
+        updateData.math_level_c = newLevel;
       } else if (subject === "reading") {
-        progressState[0].readingLevel = newLevel;
+        updateData.reading_level_c = newLevel;
       }
-      progressState[0].lastActive = new Date().toISOString();
-      return { ...progressState[0] };
+
+      return await progressService.update(currentProgress.Id, updateData);
+    } catch (error) {
+      console.error("Error updating level:", error?.response?.data?.message || error);
+      return null;
     }
-    return null;
   },
 
   addMasteredSkill: async (skill) => {
-    await delay(300);
-    if (progressState[0]) {
-      if (!progressState[0].skillsMastered.includes(skill)) {
-        progressState[0].skillsMastered.push(skill);
-        progressState[0].lastActive = new Date().toISOString();
-      }
-      return { ...progressState[0] };
-    }
-    return null;
-},
+    try {
+      const currentProgress = await progressService.getCurrentProgress();
+      if (!currentProgress) return null;
 
-addBonusStars: async (bonusAmount) => {
-    await delay(200);
-    if (progressState[0]) {
-      progressState[0].totalStars += bonusAmount;
-      progressState[0].lastActive = new Date().toISOString();
-      return { ...progressState[0] };
+      const skillsList = currentProgress.skills_mastered_c 
+        ? currentProgress.skills_mastered_c.split('\n').filter(s => s.trim())
+        : [];
+      
+      if (!skillsList.includes(skill)) {
+        skillsList.push(skill);
+        return await progressService.update(currentProgress.Id, {
+          skills_mastered_c: skillsList.join('\n')
+        });
+      }
+
+      return currentProgress;
+    } catch (error) {
+      console.error("Error adding mastered skill:", error?.response?.data?.message || error);
+      return null;
     }
-    return null;
+  },
+
+  addBonusStars: async (bonusAmount) => {
+    return await progressService.updateStars(bonusAmount);
   },
 
   getAchievementStats: async () => {
-    await delay(200);
+    // This is UI-specific data, keep in localStorage temporarily
     const stored = localStorage.getItem('learnquest_achievement_stats');
     if (stored) {
       return JSON.parse(stored);
@@ -91,7 +202,6 @@ addBonusStars: async (bonusAmount) => {
   },
 
   updateAchievementStats: async (newStats) => {
-    await delay(200);
     const current = await progressService.getAchievementStats();
     const updated = { ...current, ...newStats };
     localStorage.setItem('learnquest_achievement_stats', JSON.stringify(updated));
