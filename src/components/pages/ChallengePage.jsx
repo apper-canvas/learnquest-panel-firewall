@@ -1,16 +1,16 @@
-import { useState, useEffect } from "react";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useEffect, useState } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
 import { toast } from "react-toastify";
+import progressService from "@/services/api/progressService";
+import achievementService from "@/services/api/achievementService";
+import challengeService from "@/services/api/challengeService";
+import sessionService from "@/services/api/sessionService";
+import Button from "@/components/atoms/Button";
 import ChallengeCard from "@/components/organisms/ChallengeCard";
 import ResultsModal from "@/components/organisms/ResultsModal";
 import Loading from "@/components/ui/Loading";
 import Error from "@/components/ui/Error";
-import Button from "@/components/atoms/Button";
-import challengeService from "@/services/api/challengeService";
-import progressService from "@/services/api/progressService";
-import sessionService from "@/services/api/sessionService";
-import achievementService from "@/services/api/achievementService";
 
 const ChallengePage = () => {
   const { subject } = useParams();
@@ -30,15 +30,15 @@ const ChallengePage = () => {
   const [showModeSelect, setShowModeSelect] = useState(false);
   const [achievements, setAchievements] = useState([]);
   
-  // Check if this is a timed challenge mode
+// Check if this is a timed challenge mode
   const isTimedMode = location.pathname.includes('/timed');
-const loadChallenges = async () => {
+  
+  // Load challenges based on current mode
+  const loadChallenges = async (options = {}) => {
     try {
       setLoading(true);
-      setError(null);
-      
-      // Check if we should show mode selection first
-      if (!isTimedMode && location.pathname === `/challenges/${subject}`) {
+      // Check if we need to show mode selection (unless explicitly forcing load)
+      if (!options.forceLoad && !isTimedMode && location.pathname === `/challenges/${subject}`) {
         setShowModeSelect(true);
         setLoading(false);
         return;
@@ -138,13 +138,13 @@ const handlePlayAgain = () => {
     loadChallenges();
 };
   
-  const handleModeSelect = (timed = false) => {
+const handleModeSelect = (timed = false) => {
     setShowModeSelect(false);
     if (timed) {
       navigate(`/challenges/${subject}/timed`);
     } else {
-      // Load challenges for regular mode
-      loadChallenges();
+      // Load challenges for regular mode with forceLoad flag
+      loadChallenges({ forceLoad: true });
     }
   };
 
